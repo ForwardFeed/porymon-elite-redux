@@ -30,7 +30,13 @@
             "ability2"      : "ABILITY_NONE",
             "abilityHidden" : "ABILITY_RIPEN"
         },
-
+        
+        "innates" : {
+            "innates1"      : "ABILITY_CHLOROPHYLL",
+            "innates2"      : "ABILITY_NONE",
+            "innates3"      : "ABILITY_NONE"
+        },
+        
         "items" : {
             "itemCommon"    : "ITEM_ORAN_BERRY",
             "itemRare"      : "ITEM_NONE"
@@ -40,7 +46,7 @@
         "expYield"    : 600,
         "genderRatio" : "PERCENT_FEMALE(50)",
         "eggCycles"   : 255,
-        "friendship"  : "STANDARD_FRIENDSHIP",
+        "friendship"  : 100,
         "growthRate"  : "GROWTH_FAST",
         "bodyColor"   : "BODY_COLOR_PINK",
         "noFlip"      : false,
@@ -82,11 +88,23 @@
         { "level" : 10, "move" : "MOVE_EMBER" }
     ],
 
-    "teachable_learnset" : [
-        { "move" : "MOVE_THUNDERBOLT" },
-        { "move" : "MOVE_AERIAL_ACE" }
+    "teachable_learnset" : {
+        "TMHM1": [
+            "TM24_THUNDERBOLT",
+            "TM25_THUNDER"
+        ],
+        "TMHM2": [
+            "TM90_SUBSTITUTE",
+            "TM94_SUCKER_PUNCH"
+        ]
+    },
+    "tutor_pointers": [
+        "0x00000000","0x00000000","0x00000000","0x00000000","0x00000000"
     ],
-
+    "tutor_moves" : [
+        "MOVE_IRON_HEAD",
+        "MOVE_HIGH_HORSEPOWER"
+    ],
     "egg_learnset" : [
         { "move" : "MOVE_DRAGON_CLAW" },
         { "move" : "MOVE_FIRE_PUNCH" },
@@ -96,13 +114,12 @@
 
 
     "back_pic_coordinates" : {
-        "x" : 64,
-        "y" : 64,
+        "size": 0,
         "y_offset" : 0
     },
 
     "front_pic_coordinates" : {
-        "x" : 64,
+        "size": 0,
         "y" : 64,
         "y_offset" : 0
     },

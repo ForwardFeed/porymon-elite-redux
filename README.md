@@ -1,4 +1,6 @@
-# porymon
+# porymon-modified for pokemon elite redux needs
+
+original repository https://github.com/u8-Salem/porymon
 
 ## What is porymon?
 

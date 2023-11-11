@@ -48,7 +48,9 @@ class CFile():
     # returns -1 if no matching string was found
     def findLine(self, string: str, start = 0) -> int:
         for idx, line in enumerate(self._file):
-            if string in line and idx > start:
+            if idx < start:
+                continue
+            if string in line:
                 return idx
         return -1
 
@@ -88,6 +90,9 @@ class CFile():
         self._file = file
 
     def get_line(self, idx: int):
+        if len(self._file) >= idx:
+            return self._file[idx -1]
+        
         return self._file[idx]
 
     def set_line(self, idx: int, line: str):

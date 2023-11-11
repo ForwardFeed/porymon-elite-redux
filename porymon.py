@@ -127,17 +127,17 @@ def editFiles(pory_path, version_path, config, module):
     # Header Files
     # Species definitions
     species_header = module.SpeciesH(join(config.pokeemerald_path, include_constants, "species.h"))
-    species_header.appendData(pokemon_data.species)
+    '''species_header.appendData(pokemon_data.species)'''
 
-    species_info = module.SpeciesInfoH(join(config.pokeemerald_path, src_data_pokemon, "species_info.h"))
+    species_info = module.SpeciesInfoH(join(config.pokeemerald_path, src_data_pokemon, "base_stats.h"))
     species_info.appendData(pokemon_data.formated_species_info, species_header.prevSpecies)
 
     species_names = module.SpeciesNamesH(join(config.pokeemerald_path, "src", "data", "text", "species_names.h"))
     species_names.appendData(pokemon_data.species, species_header.prevSpecies)
 
     # Pokedex
-    pokedex_header = module.PokedexH(join(config.pokeemerald_path, include_constants, "pokedex.h"))
-    pokedex_header.appendData(pokemon_data.species, species_header.prevSpecies)
+    pokedex_header = module.PokedexH(join(config.pokeemerald_path, include_constants, "species.h"))
+    pokedex_header.appendData(pokemon_data.species, species_header.prevSpecies, species_header.prevSpeciesNum)
 
     pokedex_entry = module.PokedexEntryH(join(config.pokeemerald_path, src_data_pokemon, "pokedex_entries.h"))
     pokedex_entry.appendData(pokemon_data.formated_pokedex_data, species_header.prevSpecies)
@@ -220,11 +220,14 @@ def editFiles(pory_path, version_path, config, module):
         anim_mon_front_pics.appendData(pokemon_data.species, species_header.prevSpecies)
 
     elif version_path == "expansion":
-        teachable_lernset = module.TeachableLearnsetH(join(config.pokeemerald_path, src_data_pokemon, "teachable_learnsets.h"))
+        teachable_lernset = module.TeachableLearnsetH(join(config.pokeemerald_path, src_data_pokemon, "tmhm_learnsets.h"))
         teachable_lernset.appendData(pokemon_data.formated_teachable_learnset, species_header.prevSpecies)
 
-        teachable_lernset_pointers = module.TeachableLearnsetPointersH(join(config.pokeemerald_path, src_data_pokemon, "teachable_learnset_pointers.h"))
-        teachable_lernset_pointers.appendData(pokemon_data.species, species_header.prevSpecies)
+        teachable_lernset_pointers = module.TeachableLearnsetPointersH(join(config.pokeemerald_path, src_data_pokemon, "tutor_learnsets.h"))
+        teachable_lernset_pointers.appendData(pokemon_data.formated_tutor_pointers, pokemon_data.species, species_header.prevSpecies)
+        
+        teachable_lernset_moves = module.TutorLearnsetMovesH(join(config.pokeemerald_path, src_data_pokemon, "tutor_learnsets.h"))
+        teachable_lernset_moves.appendData(pokemon_data.formated_tutor_moves, pokemon_data.species, species_header.prevSpecies)
 
 if __name__ == '__main__':
     main()

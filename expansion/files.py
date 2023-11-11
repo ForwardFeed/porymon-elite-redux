@@ -41,6 +41,8 @@ class PokemonData(JsonFile):
     def _initMoveData(self):
         self.level_up_learnset = self._file["level_up_learnset"]
         self.teachable_learnset = self._file["teachable_learnset"]
+        self.tutor_pointers = self._file["tutor_pointers"]
+        self.tutor_moves = self._file["tutor_moves"]
         self.egg_learnset = self._file["egg_learnset"]
         self.hasEggMove = True if len(self._file["egg_learnset"]) > 0 else False
         self._formatLearnsets()
@@ -64,6 +66,8 @@ class PokemonData(JsonFile):
     def _formatLearnsets(self):
         self.formated_level_up_learnset = formatLevelUplearnset(self.species, self.level_up_learnset)
         self.formated_teachable_learnset = formatTeachablelearnset(self.species, self.teachable_learnset)
+        self.formated_tutor_pointers = formatTutorPointers(self.species, self.tutor_pointers)
+        self.formated_tutor_moves = formatTutorMoves(self.species, self.tutor_moves)
         self.formated_egg_learnset = formatEgglearnset(self.species, self.egg_learnset)
     def _formatPicCoordinates(self):
         self.formated_back_pic_coordinates = formatPicCoordinates(self.species, self.back_pic_coordinates)
@@ -127,21 +131,31 @@ class SpeciesNamesH(HeaderFile):
         idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 1
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
-        self.set_line(idx, f'    [SPECIES_{species.upper()}] = _(\"{species.title()}\"),\n')
+        self.set_line(idx, f'[SPECIES_{species.upper()}] = _(\"{species.title()}\"),\n')
 
 class PokedexH(HeaderFile):
     def __init__(self, path: str):
         super().__init__(path)
 
-    def appendData(self, species: str, prevMon: str = "BULBASAUR"):
-        idx = self.findLine(prevMon) + 1
+    def appendData(self, species: str, prevMon: str = "NONE", prevSpeciesNum: str = "1" ):
+        # update SPECIES DEX
+        speciesNum = int(prevSpeciesNum) + 1
+        idx = self.findLine("SPECIES_" + prevMon) + 1
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
-        self.set_line(idx, f"    NATIONAL_DEX_{species.upper()},\n")
-
-        # update NATIONAL_DEX_COUNT
+        self.set_line(idx, f"#define SPECIES_{species.upper()} {speciesNum}\n")
+        
+        idx = self.findLine("#define FORMS_START", idx)
+        self.set_line(idx, f"#define FORMS_START  SPECIES_{species.upper()}\n")
+        
+        # update NATIONAL_DEX        
+        idx = self.findLine("#define NATIONAL_DEX_" + prevMon) + 1
+        idx = self._handleEndif(idx)
+        self.insertBlankLine(idx)
+        self.set_line(idx, f"#define NATIONAL_DEX_{species.upper()} {speciesNum}\n")
+        
         idx = self.findLine("#define NATIONAL_DEX_COUNT", idx)
-        self.set_line(idx, f"   #define NATIONAL_DEX_COUNT  NATIONAL_DEX_{species.upper()}\n")
+        self.set_line(idx, f"#define NATIONAL_DEX_COUNT  NATIONAL_DEX_{species.upper()}\n")
 
 
 class PokedexEntryH(HeaderFile):
@@ -225,13 +239,12 @@ class PokedexOrdersH(HeaderFile):
             match = re.search(pattern, line)
             if match:
                 species = match.group(1)
-                heightMatch = re.search(r"height\s+=\s+(\d+),", pokedex_entry.get_line(pokedex_entry.findLine('height', idx)))
+                heightMatch = re.search(r"height\s+=\s+(\d+),", pokedex_entry._file[pokedex_entry.findLine('height', idx)])
                 if heightMatch:
                     height = heightMatch.group(1)
-                weightMatch = re.search(r"weight\s+=\s+(\d+),", pokedex_entry.get_line(pokedex_entry.findLine('weight', idx)))
+                weightMatch = re.search(r"weight\s+=\s+(\d+),", pokedex_entry._file[pokedex_entry.findLine('weight', idx)])
                 if weightMatch:
                     weight = weightMatch.group(1)
-
                 if heightMatch and weightMatch:
                     self._data.append([species, height, weight])
 
@@ -319,7 +332,7 @@ class BackPicCoordinatesH(HeaderFile):
         super().__init__(path)
 
     def appendData(self, prevMon, formated_back_pic_coordinates):
-        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 1
+        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 6
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
         self.set_line(idx, formated_back_pic_coordinates)
@@ -329,7 +342,7 @@ class FrontPicCoordinatesH(HeaderFile):
         super().__init__(path)
 
     def appendData(self, prevMon, formated_front_pic_coordinates):
-        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 1
+        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 6
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
         self.set_line(idx, formated_front_pic_coordinates)
@@ -340,22 +353,20 @@ class FrontPicAnimsH(HeaderFile):
 
     def appendData(self, species, prevMon, formated_front_pic_anim):
         # anim table
-        idx = self.findLine("};", self.findLine(f'sAnim_{prevMon.title()}_1')) + 1
+        idx = self.findLine(f"sAnim_{prevMon.upper()}") + 6
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
         self.set_line(idx, formated_front_pic_anim)
-
-        # single anim
-        idx = self.findLine(f'SINGLE_ANIMATION({prevMon.title()})') + 1
+        
+        idx = self.findLine(f"sAnims_{prevMon.upper()}") + 5
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
-        self.set_line(idx, f'SINGLE_ANIMATION({species.title()});\n')
-
-        # front anims ptr table
-        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 1
+        self.set_line(idx, f"static const union AnimCmd *const sAnims_{species.upper()}[] =" + "{\n    sAnim_GeneralFrame0,\n" + f"    sAnim_{species.upper()}_1" + ",\n};\n")
+        
+        idx = self.findLine(f"ANIM_CMD({prevMon.upper()}") + 1
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
-        self.set_line(idx, f'    [SPECIES_{species.upper()}]'.ljust(26) + f'= sAnims_{species.title()},\n')
+        self.set_line(idx, f"    ANIM_CMD({species.upper()}),")
 
 class FootprintTableH(HeaderFile):
     def __init__(self, path: str):
@@ -453,7 +464,7 @@ class TeachableLearnsetH(HeaderFile):
         super().__init__(path)
 
     def appendData(self, formated_teachable_learnset: str, prevMon: str = "BULBASAUR"):
-        idx = self.findLine("};", self.findLine(f's{prevMon.title()}TeachableLearnset')) + 1
+        idx = self.findLine(")),", self.findLine(f'SPECIES_{prevMon.upper()}')) + 1
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
         self.set_line(idx, formated_teachable_learnset)
@@ -462,11 +473,22 @@ class TeachableLearnsetPointersH(HeaderFile):
     def __init__(self, path: str):
         super().__init__(path)
 
-    def appendData(self, species: str, prevMon: str):
-        idx = self.findLine(f'SPECIES_{prevMon.upper()}') + 1
+    def appendData(self, formated_tutor_pointers: str ,species: str, prevMon: str):
+        idx = self.findLine(f'SPECIES_{prevMon.upper()}', self.findLine("sTutorLearnsets")) + 1
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
-        self.set_line(idx, f'    [SPECIES_{species.upper()}] = s{species.title()}TeachableLearnset,\n')
+        self.set_line(idx, formated_tutor_pointers)
+
+class TutorLearnsetMovesH(HeaderFile):
+    def __init__(self, path: str):
+        super().__init__(path)
+
+    def appendData(self, formated_tutor_moves: str ,species: str, prevMon: str):
+        idx = self.findLine(f'gNewTutorLearnsets') + 1
+        idx = self._handleEndif(idx)
+        self.insertBlankLine(idx)
+        self.set_line(idx, formated_tutor_moves)
+
 
 class EggMovesH(HeaderFile):
     def __init__(self, path: str):
