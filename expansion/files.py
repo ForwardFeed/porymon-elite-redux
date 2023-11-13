@@ -21,11 +21,16 @@ class PokemonData(JsonFile):
         self._initMoveData()
         self._initPicData()
         self._initAnims()
+        self._initFormsInfo()
 
     def _initSpeciesInfo(self):
         self.species = self._file["species_info"]["species_name"]
         self.species_info = self._file["species_info"]
         self._formatSpeciesInfo()
+
+    def _initFormsInfo(self):
+        self.otherForms = self._file["species_info"]["otherForms"]
+        self._formatFormsInfo()
 
     def _initPokedex(self):
         self.pokedex_data = self._file["pokedex_data"]
@@ -74,7 +79,9 @@ class PokemonData(JsonFile):
         self.formated_front_pic_coordinates = formatPicCoordinates(self.species, self.front_pic_coordinates)
     def _formatFrontPicAnims(self):
         self.formated_front_pic_anim = formatFrontPicAnim(self.species)
-
+    def _formatFormsInfo(self):
+        self.formated_forms_table = formatFormsTable(self.species, self.otherForms)
+        self.formated_forms_table_pointers = formatFormsTablePointers(self.species, self.otherForms)
 ############################
 # Header files pokeemerald #
 ############################
@@ -509,6 +516,48 @@ class EggMovesH(HeaderFile):
         idx = self._handleEndif(idx)
         self.insertBlankLine(idx)
         self.set_line(idx, formated_egg_learnset)
+
+class FormTableH(HeaderFile):
+    def __init__(self, path:str):
+        super().__init__(path)
+
+    def appendData(self, formated_forms_table, otherForms, name):
+        # maybe locate if the base species exists.
+        idx = -1
+        if len(otherForms):
+            idx = self.findLine(f's{otherForms[0].title()}FormSpeciesIdTable') + 2
+        else: 
+            return
+        if idx == 1:
+            # couldn't find an existing base_species
+            idx = len(self._file)
+            self.insertBlankLine(idx)
+            self.set_line(idx, formated_forms_table)
+        else:
+            idx = self._handleEndif(idx)
+            self.insertBlankLine(idx)
+            self.set_line(idx, f'    SPECIES_{name.upper()},\n')
+
+class FormTablePointersH(HeaderFile):
+    def __init__(self, path:str):
+        super().__init__(path)
+
+    def appendData(self, formated_forms_table_pointers, otherForms):
+        #if there is a base form already
+        idx = -1
+        if len(otherForms):
+            idx = self.findLine(f'[SPECIES_{otherForms[0].upper()}]')
+        else:
+            return
+        if idx == -1:
+            idx = len(self._file) -1
+            self.insertBlankLine(idx)
+            self.insertBlankLine(idx)
+        
+        idx = self._handleEndif(idx)
+        self.set_line(idx, formated_forms_table_pointers)
+
+
 
 ############################
 # Source Files pokeemerald #

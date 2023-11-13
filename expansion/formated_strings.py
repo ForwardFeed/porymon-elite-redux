@@ -143,3 +143,18 @@ def formatFrontPicAnim(name):
 }};
 '''
     return formated_front_pic_anim
+
+def formatFormsTable(name, otherForms):
+    if not len(otherForms):
+        return ''
+    formated_forms_table = f'static const u16 s{otherForms[0].title()}FormSpeciesIdTable[] = ' + "{\n"
+    for form in otherForms:
+        formated_forms_table += f'    SPECIES_{form.upper()},\n'
+    formated_forms_table += "    FORM_SPECIES_END,\n};"
+    return formated_forms_table
+
+def formatFormsTablePointers(name, otherForms):
+    if not len(otherForms):
+        return ''
+    formated_forms_table_pointers = f'    [SPECIES_{name.upper()}] = s{otherForms[0].title()}FormSpeciesIdTable,\n'
+    return formated_forms_table_pointers

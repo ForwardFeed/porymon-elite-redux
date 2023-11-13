@@ -1,4 +1,4 @@
-# porymon-modified for pokemon elite redux needs
+# porymon modified for pokemon elite redux needs
 
 original repository https://github.com/u8-Salem/porymon
 
@@ -32,6 +32,8 @@ To use porymon simply download it from the release page and follow the instructi
 - Also move your palettes into the same folder and name them as follows:
     - normal pal : `normal.pal`
     - shiny pal  : `shiny.pal`
+- When adding a form, the first row of the field otherForms is considered the base form.
+    - if a base form is already implemented, you can just add the base form as it will simply stick to it.
 - Open a terminal and navigate into your porymon directory.
 - Run `python3 porymon.py 'pokemonname'` and replace 'pokemonname' with whatever you named your folder.
     - to test the program you may insert the example pokemon `potato`. simply run `python3 porymon.py potato` from inside your porymon directory.

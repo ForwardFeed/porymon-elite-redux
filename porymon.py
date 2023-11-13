@@ -229,5 +229,12 @@ def editFiles(pory_path, version_path, config, module):
         teachable_lernset_moves = module.TutorLearnsetMovesH(join(config.pokeemerald_path, src_data_pokemon, "tutor_learnsets.h"))
         teachable_lernset_moves.appendData(pokemon_data.formated_tutor_moves, pokemon_data.species, species_header.prevSpecies)
 
+    # otherForms
+        forms_table = module.FormTableH(join(config.pokeemerald_path, src_data_pokemon, "form_species_tables.h"))
+        forms_table.appendData(pokemon_data.formated_forms_table, pokemon_data.otherForms, pokemon_data.species)
+
+        form_table_pointers = module.FormTablePointersH(join(config.pokeemerald_path, src_data_pokemon, "form_species_table_pointers.h"))
+        form_table_pointers.appendData(pokemon_data.formated_forms_table_pointers, pokemon_data.otherForms)
+
 if __name__ == '__main__':
     main()

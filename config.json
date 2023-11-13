@@ -1,4 +1,4 @@
 {
-    "pokeemerald-path" : "/the_path_of_your_gamesource_folder",
+    "pokeemerald-path" : "your/redux/folder/here",
     "pokeemerald-version" : "expansion"
 }

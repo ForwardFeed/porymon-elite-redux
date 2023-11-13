@@ -1,7 +1,10 @@
 {
     "species_info" : {
         "species_name" : "Potato",
-
+        "otherForms" : [
+            "Potato",
+            "Abomasnow_Mega"
+        ],
         "baseStats" : {
             "baseHP"        : 50,
             "baseAttack"    : 60,
